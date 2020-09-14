@@ -1,0 +1,19 @@
+syntax = "proto3";
+package example;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/huynguyen-quoc/go/investment/pb";
+
+message StringMessage {
+  string value = 1;
+}
+
+service InvestmentService {
+  rpc Echo(StringMessage) returns (StringMessage) {
+    option (google.api.http) = {
+      post: "/v1/example/echo"
+      body: "*"
+    };
+  }
+}

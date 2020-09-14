@@ -1,15 +1,7 @@
 #!/bin/bash
 
-# Script for compiling protobuffer message definitions (.proto files) into language-specific protobuffer bindings.
-# Usage: ./scripts/stream_gen.sh [schema location] [output directory] [streamID] [tech_family]"
-#
-# Authors (people you can hassle if this doesn't work immediately): shivam.dixit
-#
-# $1 has the proto path (root of schema registry)
-# $2 is the path of your stream schema (As mentioned in the schema registry)
-
 if [ "$1" == "" ]; then
-	echo "Proto file directory missing. Usage: ./scripts/stream_gen.sh [schema location] [subpath] [output directory]"
+	echo "Proto file directory missing. Usage: ./scripts/stream_gen.sh [subpath]"
 	exit 1
 fi
 

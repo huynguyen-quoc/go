@@ -36,6 +36,7 @@ func (k KafkaConsumer) NewKafkaConsumer(ctx context.Context, kafkaConfig config.
 	consumer := &kafkaConsumer{
 		Consumer:     c,
 		shutdownChan: make(chan struct{}),
+		dataChan: make(chan core.ConsumerMessage),
 	}
 
 	return consumer, nil
