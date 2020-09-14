@@ -4,8 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/huynguyen-quoc/go/streams/kafka"
+	"github.com/huynguyen-quoc/go/streams/kafka/sarama"
 )
 
+var (
+	SaramaConsumer kafka.ConsumerInitialization = sarama.KafkaConsumer{}
+)
 
 type ReaderInit struct {
 	Entity     kafka.Entity
@@ -27,7 +31,7 @@ func (s ReaderInit) NewReader(ctx context.Context) (Client, error) {
 		return nil, err
 	}
 
-	client, _ := initialize(consumer, s.Entity)
+	client := initialize(consumer, s.Entity)
 
 	return client, nil
 }

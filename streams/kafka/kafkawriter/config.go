@@ -4,6 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/huynguyen-quoc/go/streams/kafka"
+	"github.com/huynguyen-quoc/go/streams/kafka/sarama"
+)
+
+
+var (
+	SaramaProducer kafka.ProducerInitialization = sarama.KafkaProducer{}
 )
 
 type WriterInit struct {

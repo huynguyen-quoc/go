@@ -14,7 +14,6 @@ type WriterDTO interface {
 }
 
 // Message is the base type for all messages ( use for proto buf extensions)
-//go:generate mockery --inpackage --case underscore  --name Message
 type Message interface {
 	proto.Message
 	Descriptor() ([]byte, []int)

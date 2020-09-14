@@ -13,14 +13,13 @@ type Entity struct {
 	Event kafka.Entity
 }
 
-func initialize(consumer core.StreamConsumer, entity kafka.Entity) (*readerImpl, error) {
+func initialize(consumer core.StreamConsumer, entity kafka.Entity) *readerImpl {
 	return &readerImpl{
 		consumer:     consumer,
 		streamEntity: entity,
-		shutdownChan:  make(chan struct{}),
-		dataCh:        make(chan *Entity),
-	}, nil
-
+		shutdownChan: make(chan struct{}),
+		dataCh:       make(chan *Entity),
+	}
 }
 
 type readerImpl struct {
@@ -28,6 +27,7 @@ type readerImpl struct {
 	consumer     core.StreamConsumer
 	wg           sync.WaitGroup
 	initOnce     sync.Once
+	shutdownOnce sync.Once
 	dataCh       chan *Entity
 	shutdownChan chan struct{}
 }
@@ -44,7 +44,27 @@ func (r *readerImpl) GetDataChan() <-chan *Entity {
 }
 
 func (r *readerImpl) Shutdown() error {
-	panic("implement me")
+	r.shutdownOnce.Do(func() {
+		r.consumer.Shutdown()
+
+		waitForShutdown := make(chan struct{})
+		go func() {
+			r.wg.Wait()
+
+			close(r.dataCh)
+			close(waitForShutdown)
+		}()
+
+		message := r.streamEntity.GetMessage().String()
+
+		select {
+		case <-waitForShutdown:
+			fmt.Printf("[stream:%s] Consumer shutdown gracefully and drained packets in channel", message)
+		}
+		close(r.shutdownChan)
+	})
+
+	return nil
 }
 
 func (r *readerImpl) Done() <-chan struct{} {
@@ -66,11 +86,7 @@ func (r *readerImpl) processMessage(message core.ConsumerMessage) {
 		fmt.Printf("Error while unmarshalling data to message [%v]\n", err)
 		return
 	}
-	r.convert(msg)
-}
-
-func (r *readerImpl) convert(in core.Message) {
-	data := r.streamEntity.FromPB(in)
+	data := r.streamEntity.FromPB(msg)
 	select {
 	case <-r.shutdownChan:
 		// consumer shutdown
@@ -79,6 +95,6 @@ func (r *readerImpl) convert(in core.Message) {
 	case r.dataCh <- &Entity{
 		Event: data,
 	}:
-		// success
+		//success
 	}
 }

@@ -42,7 +42,6 @@ func (k *kafkaConsumer) GetDataChan() <-chan core.ConsumerMessage {
 	if err != nil {
 		fmt.Printf("Error when read channel [%v]\n", err)
 	}
-	k.dataChan = make(chan core.ConsumerMessage)
 	k.wg.Add(1)
 	go func() {
 		defer k.wg.Done()

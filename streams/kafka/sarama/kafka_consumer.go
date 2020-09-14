@@ -8,8 +8,8 @@ import (
 	"github.com/huynguyen-quoc/go/streams/sarama"
 )
 
-type KafkaConsumer struct {
-}
+type KafkaConsumer struct {}
+
 
 func (k KafkaConsumer) NewKafkaConsumer(ctx context.Context, kafkaConfig config.KafkaConfig, streamID string) (core.StreamConsumer, error) {
 	consumerGroupID := getConsumerGroupID(kafkaConfig.ClientID, streamID, kafkaConfig.ConsumerGroupID)

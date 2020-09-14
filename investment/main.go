@@ -8,7 +8,6 @@ import (
 	"github.com/huynguyen-quoc/go/streams/kafka/config"
 	"github.com/huynguyen-quoc/go/streams/kafka/kafkareader"
 	"github.com/huynguyen-quoc/go/streams/kafka/kafkawriter"
-	"github.com/huynguyen-quoc/go/streams/kafka/sarama"
 	"github.com/huynguyen-quoc/go/streams/schema/ivstream"
 	"os"
 	"os/signal"
@@ -55,7 +54,7 @@ func runConsumer() {
 	kafkaReaderInit := &kafkareader.ReaderInit{
 		Entity:     &ivstream.InvestmentOpenEntity{},
 		Configurer: configData,
-		KafkaInit: sarama.KafkaConsumer{},
+		KafkaInit: kafkareader.SaramaConsumer,
 	}
 
 	reader, err = kafkaReaderInit.NewReader(context.Background())
@@ -89,7 +88,7 @@ func runProducer() {
 	kafkaWriterInit := &kafkawriter.WriterInit{
 		Entity:     &ivstream.InvestmentOpenEntity{},
 		Configurer: configData,
-		KafkaInit: sarama.KafkaProducer{},
+		KafkaInit: kafkawriter.SaramaProducer,
 	}
 	client, err := kafkaWriterInit.NewWriter(context.Background())
 	if err != nil {
