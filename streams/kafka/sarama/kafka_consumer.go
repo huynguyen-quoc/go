@@ -9,20 +9,18 @@ import (
 )
 
 type KafkaConsumer struct {
-	KafkaConfig config.KafkaConfig
-	StreamID string
 }
 
-func (k KafkaConsumer) NewKafkaConsumer(ctx context.Context) (core.StreamConsumer, error) {
-	consumerGroupID := getConsumerGroupID(k.KafkaConfig.ClientID, k.StreamID, k.KafkaConfig.ConsumerGroupID)
+func (k KafkaConsumer) NewKafkaConsumer(ctx context.Context, kafkaConfig config.KafkaConfig, streamID string) (core.StreamConsumer, error) {
+	consumerGroupID := getConsumerGroupID(kafkaConfig.ClientID, streamID, kafkaConfig.ConsumerGroupID)
 
 	consumerConfig := &sarama.ConsumerConfig{
-		Brokers:         k.KafkaConfig.Brokers,
-		Topic:           k.StreamID,
-		ClientID:        k.KafkaConfig.ClientID,
+		Brokers:         kafkaConfig.Brokers,
+		Topic:           streamID,
+		ClientID:        kafkaConfig.ClientID,
 		ConsumerGroupID: consumerGroupID,
-		InitOffset:      getKafkaOffsetPosition(k.KafkaConfig.OffsetType),
-		ClusterType:     k.KafkaConfig.ClusterType,
+		InitOffset:      getKafkaOffsetPosition(kafkaConfig.OffsetType),
+		ClusterType:     kafkaConfig.ClusterType,
 	}
 
 	consumerSetup := &sarama.ConsumerSetup{

@@ -33,6 +33,8 @@ const (
 	WaitForAll RequireAcksType = -1
 )
 
+
+
 // KafkaConfig defines the basic config for sk2
 type KafkaConfig struct {
 	// Cluster and Stream Configurations used by both Producers & Consumers

@@ -8,7 +8,7 @@ import (
 
 //go:generate mockery --inpackage --case underscore  --name ConsumerInitialization
 type ConsumerInitialization interface {
-	NewKafkaConsumer(ctx context.Context) (core.StreamConsumer, error)
+	NewKafkaConsumer(ctx context.Context, kafkaConfig config.KafkaConfig, streamID string) (core.StreamConsumer, error)
 }
 
 //go:generate mockery --inpackage --case underscore  --name ProducerInitialization

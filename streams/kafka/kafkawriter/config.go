@@ -6,27 +6,23 @@ import (
 	"github.com/huynguyen-quoc/go/streams/kafka"
 )
 
-// StreamConfig defines the interface required to init the connection to StreamConfig server
-type StreamConfig struct {
-	Configurer kafka.Configurer
-}
-
-type StreamSetup struct {
+type WriterInit struct {
 	Entity     kafka.Entity
 	Configurer kafka.Configurer
 	KafkaInit  kafka.ProducerInitialization
 }
 
-func (s StreamSetup) NewWriter(ctx context.Context) (Client, error) {
-	cfg := &StreamConfig{
+func (s WriterInit) NewWriter(ctx context.Context) (Client, error) {
+	cfg := &kafka.StreamConfig{
 		Configurer: s.Configurer,
 	}
 
 	kafkaConfig := cfg.Configurer.GetConfig()
+	streamID := cfg.Configurer.GetStreamID()
 
-	producer, err := s.KafkaInit.NewKafkaProducer(ctx, kafkaConfig, cfg.Configurer.GetStreamID())
+	producer, err := s.KafkaInit.NewKafkaProducer(ctx, kafkaConfig, streamID)
 	if err != nil {
-		fmt.Printf("failed to init the producer for streamID=[%s] err=[%+v]\n", cfg.Configurer.GetStreamID(), err)
+		fmt.Printf("failed to init the producer for streamID=[%s] err=[%+v]\n", streamID, err)
 		return nil, err
 	}
 

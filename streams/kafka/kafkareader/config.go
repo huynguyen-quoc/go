@@ -4,33 +4,26 @@ import (
 	"context"
 	"fmt"
 	"github.com/huynguyen-quoc/go/streams/kafka"
-	"github.com/huynguyen-quoc/go/streams/kafka/sarama"
 )
 
-// StreamConfig defines the interface required to init the connection to stream server
-type StreamConfig struct {
-	Configurer kafka.Configurer
-}
 
-type StreamSetup struct {
+type ReaderInit struct {
 	Entity     kafka.Entity
 	Configurer kafka.Configurer
+	KafkaInit  kafka.ConsumerInitialization
 }
 
-func (s StreamSetup) NewReader(ctx context.Context) (Client, error) {
-	cfg := &StreamConfig{
+func (s ReaderInit) NewReader(ctx context.Context) (Client, error) {
+	cfg := &kafka.StreamConfig{
 		Configurer: s.Configurer,
 	}
 
 	kafkaConfig := cfg.Configurer.GetConfig()
+	streamID := cfg.Configurer.GetStreamID()
 
-	kafkaConsumer := sarama.KafkaConsumer{
-		KafkaConfig: kafkaConfig,
-		StreamID: cfg.Configurer.GetStreamID(),
-	}
-	consumer, err := kafkaConsumer.NewKafkaConsumer(ctx)
+	consumer, err := s.KafkaInit.NewKafkaConsumer(ctx, kafkaConfig, streamID)
 	if err != nil {
-		fmt.Printf("failed to init the consumer for streamID=[%s] err=[%+v]\n", cfg.Configurer.GetStreamID(), err)
+		fmt.Printf("failed to init the consumer for streamID=[%s] err=[%+v]\n", streamID, err)
 		return nil, err
 	}
 
@@ -38,3 +31,4 @@ func (s StreamSetup) NewReader(ctx context.Context) (Client, error) {
 
 	return client, nil
 }
+

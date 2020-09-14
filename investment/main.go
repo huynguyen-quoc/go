@@ -52,9 +52,10 @@ func runConsumer() {
 
 	var reader kafkareader.Client
 	var err error
-	kafkaReaderInit := &kafkareader.StreamSetup{
+	kafkaReaderInit := &kafkareader.ReaderInit{
 		Entity:     &ivstream.InvestmentOpenEntity{},
 		Configurer: configData,
+		KafkaInit: sarama.KafkaConsumer{},
 	}
 
 	reader, err = kafkaReaderInit.NewReader(context.Background())
@@ -85,7 +86,7 @@ func runProducer() {
 			EnableSync: false,
 		},
 	}
-	kafkaWriterInit := &kafkawriter.StreamSetup{
+	kafkaWriterInit := &kafkawriter.WriterInit{
 		Entity:     &ivstream.InvestmentOpenEntity{},
 		Configurer: configData,
 		KafkaInit: sarama.KafkaProducer{},

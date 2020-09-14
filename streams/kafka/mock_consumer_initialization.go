@@ -5,7 +5,10 @@ package kafka
 import (
 	context "context"
 
+	config "github.com/huynguyen-quoc/go/streams/kafka/config"
+
 	core "github.com/huynguyen-quoc/go/streams/core"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -14,13 +17,13 @@ type MockConsumerInitialization struct {
 	mock.Mock
 }
 
-// NewKafkaConsumer provides a mock function with given fields: ctx
-func (_m *MockConsumerInitialization) NewKafkaConsumer(ctx context.Context) (core.StreamConsumer, error) {
-	ret := _m.Called(ctx)
+// NewKafkaConsumer provides a mock function with given fields: ctx, kafkaConfig, streamID
+func (_m *MockConsumerInitialization) NewKafkaConsumer(ctx context.Context, kafkaConfig config.KafkaConfig, streamID string) (core.StreamConsumer, error) {
+	ret := _m.Called(ctx, kafkaConfig, streamID)
 
 	var r0 core.StreamConsumer
-	if rf, ok := ret.Get(0).(func(context.Context) core.StreamConsumer); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, config.KafkaConfig, string) core.StreamConsumer); ok {
+		r0 = rf(ctx, kafkaConfig, streamID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(core.StreamConsumer)
@@ -28,8 +31,8 @@ func (_m *MockConsumerInitialization) NewKafkaConsumer(ctx context.Context) (cor
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, config.KafkaConfig, string) error); ok {
+		r1 = rf(ctx, kafkaConfig, streamID)
 	} else {
 		r1 = ret.Error(1)
 	}

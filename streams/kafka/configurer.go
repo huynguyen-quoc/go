@@ -11,3 +11,7 @@ type Configurer interface {
 	GetConfig() config.KafkaConfig
 }
 
+// StreamConfig defines the interface required to init the connection to stream server
+type StreamConfig struct {
+	Configurer Configurer
+}
