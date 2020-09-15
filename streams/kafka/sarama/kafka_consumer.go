@@ -2,14 +2,14 @@ package sarama
 
 import (
 	"context"
-	"fmt"
+	"log"
+
 	"github.com/huynguyen-quoc/go/streams/core"
 	"github.com/huynguyen-quoc/go/streams/kafka/config"
 	"github.com/huynguyen-quoc/go/streams/sarama"
 )
 
-type KafkaConsumer struct {}
-
+type KafkaConsumer struct{}
 
 func (k KafkaConsumer) NewKafkaConsumer(ctx context.Context, kafkaConfig config.KafkaConfig, streamID string) (core.StreamConsumer, error) {
 	consumerGroupID := getConsumerGroupID(kafkaConfig.ClientID, streamID, kafkaConfig.ConsumerGroupID)
@@ -29,14 +29,14 @@ func (k KafkaConsumer) NewKafkaConsumer(ctx context.Context, kafkaConfig config.
 
 	c, err := consumerSetup.NewConsumer(ctx)
 	if err != nil {
-		fmt.Printf("instantiating kafka consumer failed; Error: [%v]\n", err)
+		log.Printf("instantiating kafka consumer failed; Error: [%v]\n", err)
 		return nil, err
 	}
 
 	consumer := &kafkaConsumer{
 		Consumer:     c,
 		shutdownChan: make(chan struct{}),
-		dataChan: make(chan core.ConsumerMessage),
+		dataChan:     make(chan core.ConsumerMessage),
 	}
 
 	return consumer, nil

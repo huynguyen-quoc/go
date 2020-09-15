@@ -3,9 +3,11 @@ package sarama
 import (
 	"context"
 	"fmt"
+	"log"
+	"sync"
+
 	"github.com/huynguyen-quoc/go/streams/core"
 	"github.com/huynguyen-quoc/go/streams/sarama"
-	"sync"
 )
 
 type kafkaConsumer struct {
@@ -19,7 +21,7 @@ type kafkaConsumer struct {
 func (k *kafkaConsumer) Start() {
 	err := k.Consumer.Start(context.Background())
 	if err != nil {
-		fmt.Printf("Failed to start kafka consumer. Error: [%v]\n", err)
+		log.Printf("Failed to start kafka consumer. Error: [%v]\n", err)
 	}
 }
 
@@ -28,7 +30,7 @@ func (k *kafkaConsumer) Shutdown() {
 		defer close(k.shutdownChan)
 		err := k.Consumer.Stop(context.Background())
 		if err != nil {
-			fmt.Printf("Failed to shutdown the kafka consumer. Error: [%v]\n", err)
+			log.Printf("Failed to shutdown the kafka consumer. Error: [%v]\n", err)
 		}
 		if k.dataChan != nil {
 			k.wg.Wait()
@@ -40,7 +42,7 @@ func (k *kafkaConsumer) Shutdown() {
 func (k *kafkaConsumer) GetDataChan() <-chan core.ConsumerMessage {
 	readMsgChan, err := k.Consumer.ReadMessage(context.Background())
 	if err != nil {
-		fmt.Printf("Error when read channel [%v]\n", err)
+		log.Printf("Error when read channel [%v]\n", err)
 	}
 	k.wg.Add(1)
 	go func() {

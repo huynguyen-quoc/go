@@ -1,11 +1,12 @@
 package kafkareader
 
 import (
-	"fmt"
+	"log"
+	"sync"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/huynguyen-quoc/go/streams/core"
 	"github.com/huynguyen-quoc/go/streams/kafka"
-	"sync"
 )
 
 // Entity ...
@@ -59,7 +60,7 @@ func (r *readerImpl) Shutdown() error {
 
 		select {
 		case <-waitForShutdown:
-			fmt.Printf("[stream:%s] Consumer shutdown gracefully and drained packets in channel", message)
+			log.Printf("[stream:%s] Consumer shutdown gracefully and drained packets in channel", message)
 		}
 		close(r.shutdownChan)
 	})
@@ -83,7 +84,7 @@ func (r *readerImpl) processMessage(message core.ConsumerMessage) {
 	msg := r.streamEntity.GetMessage()
 	err := proto.Unmarshal(message.Data(), msg)
 	if err != nil {
-		fmt.Printf("Error while unmarshalling data to message [%v]\n", err)
+		log.Printf("Error while unmarshalling data to message [%v]\n", err)
 		return
 	}
 	data := r.streamEntity.FromPB(msg)

@@ -3,7 +3,7 @@ package streams
 import (
 	json2 "encoding/json"
 	"errors"
-	"fmt"
+	"log"
 
 	"context"
 
@@ -26,13 +26,13 @@ func (i *InvestmentStream) Start(ctx context.Context) {
 
 func (i *InvestmentStream) SendData(ctx context.Context, data interface{}) error {
 	if i.writer == nil {
-		fmt.Println("Investment Streams producer was not init")
+		log.Printf("Investment Streams producer was not init")
 		return errors.New("producer was not init")
 	}
 
 	entity, ok := data.(*ivstream.InvestmentOpenEntity)
 	if !ok {
-		fmt.Println("Data is not InvestmentOpen Entity")
+		log.Printf("Data is not InvestmentOpen Entity")
 		return errors.New("data is not investmentOpen entity")
 	}
 
@@ -57,12 +57,12 @@ func (i *InvestmentStream) newConsumer(ctx context.Context) {
 
 	reader, err = kafkaReaderInit.NewReader(context.Background())
 	if err != nil {
-		fmt.Printf("error for init kafka consumer [%v]\n", err)
+		log.Printf("error for init kafka consumer [%v]\n", err)
 		return
 	}
 	i.reader = reader
 	if i.reader == nil {
-		fmt.Println("Investment Streams Consumer was not init")
+		log.Printf("Investment Streams Consumer was not init")
 		return
 	}
 	ch := i.reader.GetDataChan()
@@ -73,15 +73,15 @@ func (i *InvestmentStream) consumeIvStream(ctx context.Context, ch <-chan *kafka
 	for data := range ch {
 		entity, err := data.Event.(*ivstream.InvestmentOpenEntity)
 		if !err {
-			fmt.Printf("Wrong entity in ptReader, event=[%#v]\n", data.Event)
+			log.Printf("Wrong entity in ptReader, event=[%#v]\n", data.Event)
 			return
 		}
 		errHandle := handlePTStream(ctx, *entity)
 		if errHandle != nil {
-			fmt.Printf("handling ptstream event failed, investmentId=[%d] err=[%v]", entity.InvestmentId, err)
+			log.Printf("handling ptstream event failed, investmentId=[%d] err=[%v]", entity.InvestmentId, err)
 		}
 	}
-	fmt.Printf("iv streams read channel drained, send signal to stop")
+	log.Printf("iv streams read channel drained, send signal to stop")
 }
 
 // Emit messages forever every second
@@ -94,7 +94,7 @@ func (i *InvestmentStream) newProducer() {
 	}
 	client, err := kafkaWriterInit.NewWriter(context.Background())
 	if err != nil {
-		fmt.Printf("error newWriter [%v]\n", err)
+		log.Printf("error newWriter [%v]\n", err)
 		return
 	}
 	i.writer = client
@@ -103,6 +103,6 @@ func (i *InvestmentStream) newProducer() {
 
 var handlePTStream = func(ctx context.Context, data ivstream.InvestmentOpenEntity) error {
 	json, _ := json2.Marshal(data)
-	fmt.Printf("result is [%v]\n", string(json))
+	log.Printf("result is [%v]\n", string(json))
 	return nil
 }

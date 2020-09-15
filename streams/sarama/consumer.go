@@ -3,10 +3,11 @@ package sarama
 import (
 	"context"
 	"errors"
-	"fmt"
-	"github.com/Shopify/sarama"
+	"log"
 	"sync"
 	"time"
+
+	"github.com/Shopify/sarama"
 )
 
 const (
@@ -134,7 +135,7 @@ func (consumer *consumer) doRead(readT readType) {
 				}
 				err := consumer.sdkConsumerGroup.Consume(context.Background(), []string{consumer.topic}, groupHandler)
 				if err != nil {
-					fmt.Printf("failed to consume message with error [%v]\n", err)
+					log.Printf("failed to consume message with error [%v]\n", err)
 				}
 			}
 		}
@@ -148,7 +149,7 @@ func (consumer *consumer) startEventLoops() {
 	go func() {
 		defer consumer.readWg.Done()
 		for err := range consumer.sdkConsumerGroup.Errors() {
-			fmt.Printf("consumer group failed to consume message. Error: [%v]\n", err)
+			log.Printf("consumer group failed to consume message. Error: [%v]\n", err)
 			time.Sleep(sleepDurationWhenErr)
 		}
 	}()

@@ -1,10 +1,11 @@
 package ivstream
 
 import (
-	"fmt"
+	"log"
+	"time"
+
 	"github.com/huynguyen-quoc/go/streams/core"
 	"github.com/huynguyen-quoc/go/streams/kafka"
-	"time"
 
 	"github.com/huynguyen-quoc/go/streams/schema/common"
 )
@@ -15,7 +16,6 @@ type InvestmentOpenEntity struct {
 	UserId         int64              `protobuf:"varint,3,opt,name=userId,proto3" json:"userId,omitempty"`
 	StreamMetadata *common.StreamInfo `protobuf:"bytes,1235,opt,name=StreamMetadata,proto3" json:"StreamMetadata,omitempty"`
 }
-
 
 // GetPartitionKey ...
 func (entity *InvestmentOpenEntity) GetPartitionKey() interface{} {
@@ -62,7 +62,7 @@ func (entity *InvestmentOpenEntity) FromPB(pb core.Message) kafka.Entity {
 func (entity *InvestmentOpenEntity) GetPartitionID(id interface{}) int64 {
 	idInt64, ok := id.(int64)
 	if !ok {
-		fmt.Println("Error. `id` is not of int64 type")
+		log.Printf("Error. `id` is not of int64 type")
 	}
 
 	// Ensure this stays positive
@@ -73,7 +73,7 @@ func (entity *InvestmentOpenEntity) GetPartitionID(id interface{}) int64 {
 func (entity *InvestmentOpenEntity) GetMessage() core.Message {
 	return &InvestmentOpen{
 		InvestmentId: entity.InvestmentId,
-		Message: entity.Message,
-		UserId: entity.UserId,
+		Message:      entity.Message,
+		UserId:       entity.UserId,
 	}
 }

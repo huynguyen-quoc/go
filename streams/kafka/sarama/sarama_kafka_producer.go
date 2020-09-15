@@ -2,14 +2,15 @@ package sarama
 
 import (
 	"context"
-	"fmt"
+	"log"
+	"sync"
+	"time"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/huynguyen-quoc/go/common/util"
 	"github.com/huynguyen-quoc/go/streams/core"
 	"github.com/huynguyen-quoc/go/streams/kafka/config"
 	"github.com/huynguyen-quoc/go/streams/sarama"
-	"sync"
-	"time"
 )
 
 const (
@@ -43,17 +44,17 @@ func (s saramaKafkaProducer) newSaramaKafkaProducer(ctx context.Context) (*kafka
 	saramaProducer, err := setup.NewProducer(ctx)
 
 	if err != nil {
-		fmt.Printf("Setup SKafka Producer failed, error=[%v]\n", err)
+		log.Printf("Setup SKafka Producer failed, error=[%v]\n", err)
 		return nil, err
 	}
 	err = saramaProducer.Start(ctx)
 	if err != nil {
-		fmt.Printf("Starting  kafka producer failed; Error: [%v]\n", err)
+		log.Printf("Starting  kafka producer failed; Error: [%v]\n", err)
 		return nil, err
 	}
 	p := &kafkaProducer{
 		Producer: saramaProducer,
-		topic: s.stream,
+		topic:    s.stream,
 	}
 	return p, nil
 }
@@ -62,7 +63,7 @@ func (s saramaKafkaProducer) newSaramaKafkaProducer(ctx context.Context) (*kafka
 func (producer *kafkaProducer) add(msg core.Message) error {
 	bytes, err := proto.Marshal(msg)
 	if err != nil {
-		fmt.Printf("Failed to marshal the message with error: [%v]\n", err)
+		log.Printf("Failed to marshal the message with error: [%v]\n", err)
 		return err
 	}
 	partitionBytes := proto.EncodeVarint(uint64(msg.GetStreamInfo().StreamPartitionID))
@@ -72,7 +73,7 @@ func (producer *kafkaProducer) add(msg core.Message) error {
 func (producer *kafkaProducer) writeBytesToStream(ctx context.Context, partitionBytes, dataBytes []byte) error {
 	err := producer.Write(ctx, producer.topic, partitionBytes, dataBytes)
 	if err != nil {
-		fmt.Printf("Failed to write to the topic=[%s] with error=[%v]\n", producer.topic, err)
+		log.Printf("Failed to write to the topic=[%s] with error=[%v]\n", producer.topic, err)
 		return err
 	}
 	return nil
@@ -81,11 +82,11 @@ func (producer *kafkaProducer) writeBytesToStream(ctx context.Context, partition
 func (producer *kafkaProducer) shutdown() {
 	err := producer.Stop(context.Background())
 	if err != nil {
-		fmt.Printf("Failed to shutdown the kafka producer with error=[%v]\n", err)
+		log.Printf("Failed to shutdown the kafka producer with error=[%v]\n", err)
 	}
 
 	err = util.Wait(&producer.wg, shutdownTimeout)
 	if err != nil {
-		fmt.Printf("Failed to shutdown with time out error=[%v]\n", err)
+		log.Printf("Failed to shutdown with time out error=[%v]\n", err)
 	}
 }

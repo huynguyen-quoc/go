@@ -9,6 +9,7 @@ require (
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.14.8
+	github.com/hashicorp/go-uuid v1.0.2
 	github.com/klauspost/compress v1.11.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/stretchr/testify v1.6.1

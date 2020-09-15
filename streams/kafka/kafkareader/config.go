@@ -2,7 +2,8 @@ package kafkareader
 
 import (
 	"context"
-	"fmt"
+	"log"
+
 	"github.com/huynguyen-quoc/go/streams/kafka"
 	"github.com/huynguyen-quoc/go/streams/kafka/sarama"
 )
@@ -27,7 +28,7 @@ func (s ReaderInit) NewReader(ctx context.Context) (Client, error) {
 
 	consumer, err := s.KafkaInit.NewKafkaConsumer(ctx, kafkaConfig, streamID)
 	if err != nil {
-		fmt.Printf("failed to init the consumer for streamID=[%s] err=[%+v]\n", streamID, err)
+		log.Printf("failed to init the consumer for streamID=[%s] err=[%+v]\n", streamID, err)
 		return nil, err
 	}
 
@@ -35,4 +36,3 @@ func (s ReaderInit) NewReader(ctx context.Context) (Client, error) {
 
 	return client, nil
 }
-

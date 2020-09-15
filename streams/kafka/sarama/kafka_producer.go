@@ -2,7 +2,8 @@ package sarama
 
 import (
 	"context"
-	"fmt"
+	"log"
+
 	"github.com/huynguyen-quoc/go/streams/core"
 	"github.com/huynguyen-quoc/go/streams/kafka/config"
 )
@@ -20,12 +21,12 @@ func (k KafkaProducer) NewKafkaProducer(ctx context.Context, kafkaConfig config.
 	// Note: all the feature flags checks are performed by the caller
 	if len(kafkaConfig.Brokers) > 0 {
 
-		fmt.Printf("Initialize kafka producer for stream=[%s] topicName=[%s]\n", streamID, kafkaConfig.Stream)
-		fmt.Printf("Using Kafka to write streamName=[%s] brokers=[%+v]\n", kafkaConfig.Stream, kafkaConfig.Brokers)
+		log.Printf("Initialize kafka producer for stream=[%s] topicName=[%s]\n", streamID, kafkaConfig.Stream)
+		log.Printf("Using Kafka to write streamName=[%s] brokers=[%+v]\n", kafkaConfig.Stream, kafkaConfig.Brokers)
 
 		saramaKafkaProducer := &saramaKafkaProducer{
 			kafkaConfig: &kafkaConfig,
-			stream:     kafkaConfig.Stream,
+			stream:      kafkaConfig.Stream,
 		}
 		kafkaProducer, err := saramaKafkaProducer.newSaramaKafkaProducer(ctx)
 		if err != nil {

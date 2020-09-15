@@ -3,11 +3,12 @@ package sarama
 import (
 	"context"
 	"errors"
-	"fmt"
-	"github.com/Shopify/sarama"
+	"log"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/Shopify/sarama"
 )
 
 const (
@@ -33,7 +34,7 @@ type syncProducer struct {
 func newSyncProducer(config *ProducerConfig) (*syncProducer, error) {
 	sdkSyncProducer, err := sarama.NewSyncProducer(config.Brokers, getSaramaProducerConfig(config))
 	if err != nil {
-		fmt.Printf("Failed to instantiate sarama sync producer with error=[%v]\n", err)
+		log.Printf("Failed to instantiate sarama sync producer with error=[%v]\n", err)
 		return nil, err
 	}
 
@@ -76,7 +77,7 @@ func (s *syncProducer) Write(ctx context.Context, topic string, partitionKey []b
 	}
 	_, _, err := s.sdkProducer.SendMessage(pMsg)
 	if err != nil {
-		fmt.Printf("Failed to produce message on topic=[%s]. Error=[%s]\n", topic, err)
+		log.Printf("Failed to produce message on topic=[%s]. Error=[%s]\n", topic, err)
 		return err
 	}
 	return nil
@@ -154,7 +155,7 @@ func (producer *asyncProducer) Write(ctx context.Context, topic string, partitio
 	case producer.sdkProducer.Input() <- msg:
 		break
 	case <-ctx.Done():
-		fmt.Printf("timed out sending message to kafka for topic=[%s], partition key=[%s]\n", topic, string(partitionKey))
+		log.Printf("timed out sending message to kafka for topic=[%s], partition key=[%s]\n", topic, string(partitionKey))
 		return errors.New("producer already stop")
 	}
 	return nil
@@ -162,7 +163,7 @@ func (producer *asyncProducer) Write(ctx context.Context, topic string, partitio
 
 func (producer *asyncProducer) stopInternal(parent context.Context, fullShutdown bool) error {
 	if producer.closed {
-		fmt.Println("producer already closed")
+		log.Printf("producer already closed")
 		return nil
 	}
 	producer.closed = true
@@ -179,9 +180,9 @@ func (producer *asyncProducer) stopInternal(parent context.Context, fullShutdown
 
 	select {
 	case <-shutdownChan:
-		fmt.Println( "Successfully stopped kafka producer")
+		log.Printf("Successfully stopped kafka producer")
 	case <-ctx.Done():
-		fmt.Printf("Close kafka producer error=[%v]\n", ctx.Err())
+		log.Printf("Close kafka producer error=[%v]\n", ctx.Err())
 		return ctx.Err()
 	}
 
@@ -198,7 +199,7 @@ func (producer *asyncProducer) startEventLoops() {
 
 		for err := range sdkProducer.Errors() {
 			// even errors should be calculated as attempted add
-			fmt.Printf("Failed to produce message. error=[%v]\n", err)
+			log.Printf("Failed to produce message. error=[%v]\n", err)
 		}
 	}()
 }
@@ -206,7 +207,7 @@ func (producer *asyncProducer) startEventLoops() {
 func getAsyncProducer(config *ProducerConfig) (sarama.AsyncProducer, error) {
 	sdkProducer, err := sarama.NewAsyncProducer(config.Brokers, getSaramaProducerConfig(config))
 	if err != nil {
-		fmt.Printf("Failed to instantiate sarama producer with error=[%v]\n", err)
+		log.Printf("Failed to instantiate sarama producer with error=[%v]\n", err)
 	}
 
 	return sdkProducer, err
@@ -226,8 +227,8 @@ func getSaramaProducerConfig(config *ProducerConfig) *sarama.Config {
 	producerConfig.Producer.Compression = getCompressionCodec(config.CompressionCodec)
 	producerConfig.Producer.CompressionLevel = getCompressionLevel(config.CompressionLevel)
 
-	fmt.Printf("ClientID=[%s], Kafka version=[%v]\n", producerConfig.ClientID, producerConfig.Version)
-	fmt.Printf("Compression codec=[%s], Compression level=[%d]\n", producerConfig.Producer.Compression, producerConfig.Producer.CompressionLevel)
+	log.Printf("ClientID=[%s], Kafka version=[%v]\n", producerConfig.ClientID, producerConfig.Version)
+	log.Printf("Compression codec=[%s], Compression level=[%d]\n", producerConfig.Producer.Compression, producerConfig.Producer.CompressionLevel)
 
 	if config.Sync {
 		// Sync producer specific configs should go below
@@ -246,7 +247,7 @@ func getSaramaProducerConfig(config *ProducerConfig) *sarama.Config {
 func getKafkaVersion(kafkaVersion string) sarama.KafkaVersion {
 	version, err := sarama.ParseKafkaVersion(kafkaVersion)
 	if err != nil {
-		fmt.Printf("Failed to parse sarama version with error=[%v], use default one instead\n", err)
+		log.Printf("Failed to parse sarama version with error=[%v], use default one instead\n", err)
 		version, _ = sarama.ParseKafkaVersion(defaultKafkaVersion)
 	}
 	return version
@@ -262,7 +263,7 @@ func getRequiredACKs(requireAcks int16) sarama.RequiredAcks {
 	case 1:
 		return sarama.WaitForLocal
 	default:
-		fmt.Printf("Unknown require acks type=[%d], use default type=[%v]", requireAcks, sarama.WaitForAll)
+		log.Printf("Unknown require acks type=[%d], use default type=[%v]", requireAcks, sarama.WaitForAll)
 		return sarama.WaitForAll
 	}
 }
@@ -282,7 +283,7 @@ func getCompressionCodec(compressionCodec string) sarama.CompressionCodec {
 	case "":
 		return defaultCompressionCodec
 	default:
-		fmt.Printf("Unknown compression codec used: [%s]. Using default codec: [%s]\n", compressionCodec, defaultCompressionCodec)
+		log.Printf("Unknown compression codec used: [%s]. Using default codec: [%s]\n", compressionCodec, defaultCompressionCodec)
 		return defaultCompressionCodec
 	}
 }
