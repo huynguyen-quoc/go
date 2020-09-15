@@ -1,12 +1,13 @@
 #!/bin/bash
-if [ "$1" == "" ]; then
-	echo "Proto file directory missing. Usage: ./scripts/api_gen.sh [subpath]"
+if [ "$1" == "" ] || [ "$2" == "" ]; then
+	echo "Proto file directory missing. Usage: ./scripts/api_gen.sh [subpath] [versionpath]"
 	exit 1
 fi
 
 SUBPATH=$1
+VERSION_PATH=$2
 
-PROTOC_CMD="protoc  --proto_path=$GOPATH/src/github.com/huynguyen-quoc/go --proto_path=$GOPATH/src --proto_path=$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis  --go_out=plugins=grpc:$GOPATH/src $SERVICE_DIR/${SUBPATH}/pb/*.proto"
+PROTOC_CMD="protoc  --proto_path=$GOPATH/src/github.com/huynguyen-quoc/go --proto_path=$GOPATH/src --proto_path=$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis  --go_out=plugins=grpc:$GOPATH/src $SERVICE_DIR/${SUBPATH}/pb/${VERSION_PATH}/*.proto"
 
 $PROTOC_CMD
 
